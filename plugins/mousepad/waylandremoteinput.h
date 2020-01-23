@@ -1,5 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2018 Albert Vaca Cintora <albertvaka@gmail.com>
+ * SPDX-FileCopyrightText: 2020 Aleix Pol Gonzalez <aleixpol@kde.org>
  *
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
  */
@@ -8,6 +9,8 @@
 #define WAYLANDREMOTEINPUT_H
 
 #include "abstractremoteinput.h"
+#include "xdp_dbus_remotedesktop_interface.h"
+#include <QDBusObjectPath>
 
 class FakeInput;
 
@@ -21,11 +24,17 @@ public:
 
     bool handlePacket(const NetworkPacket &np) override;
 
-private:
-    void setupWaylandIntegration();
+private Q_SLOTS:
+    void handleXdpSessionCreated(uint code, const QVariantMap &results);
+    void handleXdpSessionConfigured(uint code, const QVariantMap &results);
+    void handleXdpSessionFinished(uint code, const QVariantMap &results);
 
-    FakeInput *m_fakeInput;
-    bool m_waylandAuthenticationRequested;
+private:
+    void createSession();
+
+    OrgFreedesktopPortalRemoteDesktopInterface *const iface;
+    bool m_waylandAuthenticationRequested = false;
+    QDBusObjectPath m_xdpPath;
 };
 
 #endif
